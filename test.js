@@ -23,7 +23,7 @@ class Person {
     }
 
     @readonly
-    @log
+    @logDecorator('开始的log', '结束的log')
     name() { return `${this.first} ${this.last}` }
 }
 
@@ -32,19 +32,19 @@ function readonly(target, name, descriptor) {
     descriptor.writable = false
     return descriptor
 }
-
-function log(target, name, descriptor) {
-    console.log('log toggled')
-    console.log(target + '\n', name + '\n', descriptor.value + '\n')
-    let method = descriptor.value
-    descriptor.value = function(args) {
-        console.log("log监听开始:", name)
-        let res = method.apply(this, args)
-        console.log("log监听结束:", name)
-        return res
+function logDecorator(startLog, endLog){
+    return function log(target, name, descriptor) {
+        let method = descriptor.value
+        descriptor.value = function(args) {
+            console.log("log监听开始:", startLog)
+            let res = method.apply(this, args)
+            console.log("log监听结束:", endLog)
+            return res
+        }
+        return descriptor
     }
-    return descriptor
 }
+
 const person = new Person("x", "j")
 // person.name()
 console.log(person.name())
